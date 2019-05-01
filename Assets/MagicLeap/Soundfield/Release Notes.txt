@@ -1,0 +1,10 @@
+MSA 1.2.14.1.30b
+Core Library - v1.2.14
+API - v1
+Unity Plugin - v30b
+
+Documentation on Soundfield Audio
+https://creator.magicleap.com/learn/guides/lumin-sdk-soundfield-audio
+
+Documentation on Soundfield Audio for Unity with information on the demo scene
+https://creator.magicleap.com/learn/guides/soundfield-user-guide-for-unity

@@ -1,0 +1,12 @@
+# Example Scene: InputModule
+
+This example scene demonstrates the MLInputModule, which implements a seamless integration
+between Magic Leap input (Headpose, Eye Tracking, and Controls) with the native Unity
+UI elements.
+
+Upon launching the application you will see a menu that you can interact with using the
+device Headpose or the Control(s). While a button is being hovered, use the Trigger on the
+Control(s) to press and activate the selected button.
+
+## Trigger
+Button Press
