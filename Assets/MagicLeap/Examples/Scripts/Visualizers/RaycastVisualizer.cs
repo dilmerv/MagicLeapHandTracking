@@ -10,6 +10,7 @@
 // ---------------------------------------------------------------------
 // %BANNER_END%
 
+using MagicLeapHandTracking.Assets.Scripts.Core;
 using UnityEngine;
 using UnityEngine.XR.MagicLeap;
 
@@ -105,6 +106,15 @@ namespace MagicLeap
         /// <param name="confidence"> Confidence value of hit. 0 no hit, 1 sure hit.</param>
         public void OnRaycastHit(MLWorldRays.MLWorldRaycastResultState state, RaycastHit result, float confidence)
         {
+             // Update the cursor position and normal.
+            transform.position = (_raycast.RayOrigin + (_raycast.RayDirection * _defaultDistance));
+            transform.LookAt(_raycast.RayOrigin);
+            transform.localScale = Vector3.one;
+
+            _render.material.color = Color.red;
+
+            _hit = false;
+            return;
             if (state != MLWorldRays.MLWorldRaycastResultState.RequestFailed && state != MLWorldRays.MLWorldRaycastResultState.NoCollision)
             {
                 // Update the cursor position and normal.
