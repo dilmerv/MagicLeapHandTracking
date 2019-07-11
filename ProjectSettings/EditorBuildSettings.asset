@@ -8,7 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/ClothDemo.unity
     guid: d1c3109bdb54ad54c8a2b2838528e640
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SuperPowersDemo.unity
     guid: 1017748ef44d24ba79f60535055cb041
+  - enabled: 1
+    path: Assets/Scenes/HandKeyPointsDemo.unity
+    guid: 4e8f347acbfc643029a9bcda3700e5c4
   m_configObjects: {}

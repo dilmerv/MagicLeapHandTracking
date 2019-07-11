@@ -43,6 +43,9 @@ in the real world and will persist between reboots.
 ## Remove Content
 - Highlight content and tap on the touchpad to remove it.
 
+## Remove All Content
+- Perform the TouchPad Radial Scroll continuously for a while to remove all content.
+
 ## Drag Content
 - Highlight content and hold trigger to drag it around.
 

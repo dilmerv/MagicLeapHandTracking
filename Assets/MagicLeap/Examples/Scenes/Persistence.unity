@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.16789529, g: 0.21075131, b: 0.28994915, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -325,12 +325,12 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114366043123998692, guid: 3aae518756c7a3c46bf2b24558dc5b77,
+    - target: {fileID: 114179439577410040, guid: 3aae518756c7a3c46bf2b24558dc5b77,
         type: 3}
       propertyPath: _controllerConnectionHandler
       value: 
       objectReference: {fileID: 247585909}
-    - target: {fileID: 114179439577410040, guid: 3aae518756c7a3c46bf2b24558dc5b77,
+    - target: {fileID: 114366043123998692, guid: 3aae518756c7a3c46bf2b24558dc5b77,
         type: 3}
       propertyPath: _controllerConnectionHandler
       value: 
@@ -632,6 +632,7 @@ MonoBehaviour:
   _controller: {fileID: 247585909}
   _distance: 0.2
   _pcfVisualizer: {fileID: 1713971176}
+  _deleteAllSequenceMinFrames: 60
 --- !u!114 &1044815952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -975,8 +976,8 @@ MonoBehaviour:
   m_Text: "Press Bumper to add content (balls)\nMove controller to content to highlight
     it\nTap touchpad to remove highlighted content\nPull trigger to drag highlighted
     content\nTap home button to enable/disable debug mode\n  Debug Mode shows additional
-    PCF Information\n\nUninstall app to wipe data\nContent persists between device
-    reboots"
+    PCF Information\n\nUninstall app or perform radial scroll to wipe data\nContent
+    persists between device reboots"
 --- !u!222 &1467197545
 CanvasRenderer:
   m_ObjectHideFlags: 0

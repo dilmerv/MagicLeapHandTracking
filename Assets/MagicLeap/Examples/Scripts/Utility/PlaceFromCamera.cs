@@ -32,8 +32,11 @@ namespace MagicLeap
         [SerializeField, Tooltip("The distance from the camera through its forward vector.")]
         private float _distance = 0.0f;
 
-        [SerializeField, Tooltip("The distance on the Y axis from the camera.")]
-        private float _height = 0.0f;
+        [SerializeField, Tooltip("The distance on the local Y axis from the camera's forward ray.")]
+        private float _heightOffset = 0.0f;
+
+        [SerializeField, Tooltip("The distance on the local X axis from the camera's forward ray.")]
+        private float _lateralOffset = 0.0f;
 
         [SerializeField, Tooltip("The approximate time it will take to reach the current position.")]
         private float _positionSmoothTime = 5f;
@@ -77,9 +80,10 @@ namespace MagicLeap
 
         void Update()
         {
-            if (_placeOnUpdate && Camera.main.transform.hasChanged)
+            Camera mainCamera = Camera.main;
+            if (_placeOnUpdate && mainCamera.transform.hasChanged)
             {
-                UpdateTransform();
+                UpdateTransform(mainCamera);
             }
         }
 
@@ -99,19 +103,17 @@ namespace MagicLeap
             // Wait until the camera has finished the current frame.
             yield return new WaitForEndOfFrame();
 
-            UpdateTransform();
+            UpdateTransform(Camera.main);
         }
 
         /// <summary>
         /// Reset position and rotation to match current camera values.
         /// </summary>
-        private void UpdateTransform()
+        private void UpdateTransform(Camera camera)
         {
-            Camera camera = Camera.main;
-
-            // Move the object CanvasDistance units in front of the camera.
-            Vector3 upVector = new Vector3(0.0f, _height, 0.0f);
-            Vector3 targetPosition = camera.transform.position + upVector + (camera.transform.forward * _distance);
+            // Move the object in front of the camera with specified offsets.
+            Vector3 offsetVector = (camera.transform.up * _heightOffset) + (camera.transform.right * _lateralOffset);
+            Vector3 targetPosition = camera.transform.position + offsetVector + (camera.transform.forward * _distance);
             transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref _positionVelocity, _positionSmoothTime);
 
             Quaternion targetRotation = transform.rotation;
@@ -119,11 +121,11 @@ namespace MagicLeap
             // Rotate the object to face the camera.
             if (_lookDirection == LookDirection.LookAwayFromCamera)
             {
-                targetRotation = Quaternion.LookRotation(transform.position - camera.transform.position);
+                targetRotation = Quaternion.LookRotation(transform.position - camera.transform.position, camera.transform.up);
             }
             else if (_lookDirection == LookDirection.LookAtCamera)
             {
-                targetRotation = Quaternion.LookRotation(camera.transform.position - transform.position);
+                targetRotation = Quaternion.LookRotation(camera.transform.position - transform.position, camera.transform.up);
             }
 
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime / _rotationSmoothTime);

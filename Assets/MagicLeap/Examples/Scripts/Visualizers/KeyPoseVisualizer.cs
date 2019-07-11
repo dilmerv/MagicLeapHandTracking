@@ -23,6 +23,9 @@ namespace MagicLeap
     public class KeyPoseVisualizer : MonoBehaviour
     {
         #region Private Variables
+        private const float ROTATION_SPEED = 100.0f;
+        private const float CONFIDENCE_THRESHOLD = 0.95f;
+
         [SerializeField, Tooltip("KeyPose to track.")]
         private MLHandKeyPose _keyPoseToTrack = MLHandKeyPose.NoPose;
 
@@ -66,6 +69,22 @@ namespace MagicLeap
                 currentColor.r = 1.0f - confidenceValue;
                 currentColor.g = 1.0f;
                 currentColor.b = 1.0f - confidenceValue;
+            }
+
+            // When the keypose is detected for both hands, spin the image continuously.
+            if (confidenceValue > 0.0f && confidenceLeft >= CONFIDENCE_THRESHOLD && confidenceRight >= CONFIDENCE_THRESHOLD)
+            {
+                transform.Rotate(Vector3.up, ROTATION_SPEED * Time.deltaTime, Space.Self);
+            }
+            else if(confidenceValue > 0.0f && confidenceRight > confidenceLeft)
+            {
+                // Show Right-Hand Orientation
+                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, Quaternion.Euler(0, 180, 0), ROTATION_SPEED * Time.deltaTime);
+            }
+            else
+            {
+                // Show Left-Hand Orientation (Default)
+                transform.localRotation = Quaternion.RotateTowards(transform.localRotation, Quaternion.Euler(0, 0, 0), ROTATION_SPEED * Time.deltaTime);
             }
 
             _spriteRenderer.material.color = currentColor;

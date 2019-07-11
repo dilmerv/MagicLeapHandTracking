@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18029505, g: 0.22572653, b: 0.30692935, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -569,8 +569,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.353, y: 0.107}
-  m_SizeDelta: {x: 300, y: 220}
+  m_AnchoredPosition: {x: -0.3266, y: 0.107}
+  m_SizeDelta: {x: 415, y: 220}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1376495291
 MonoBehaviour:
@@ -603,7 +603,7 @@ MonoBehaviour:
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: "Run this app from a placed Universe Screens app in order to correctly use
     this ChannelApp application.\nThis app will display matching positions of Screens
@@ -1117,12 +1117,12 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114366043123998692, guid: 3aae518756c7a3c46bf2b24558dc5b77,
+    - target: {fileID: 114179439577410040, guid: 3aae518756c7a3c46bf2b24558dc5b77,
         type: 3}
       propertyPath: _controllerConnectionHandler
       value: 
       objectReference: {fileID: 1516408170}
-    - target: {fileID: 114179439577410040, guid: 3aae518756c7a3c46bf2b24558dc5b77,
+    - target: {fileID: 114366043123998692, guid: 3aae518756c7a3c46bf2b24558dc5b77,
         type: 3}
       propertyPath: _controllerConnectionHandler
       value: 

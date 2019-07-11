@@ -101,7 +101,6 @@ namespace UnityEditor.Experimental.XR.MagicLeap
             Process process = new Process();
             process.StartInfo = startInfo;
             process.Start();
-            process.WaitForExit();
 
             string error = process.StandardError.ReadToEnd();
             if (error != string.Empty)

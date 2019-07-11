@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <mutex>
 
 #include <ml_music_service_provider.h>
 
@@ -45,18 +46,26 @@ struct Playlist
 
 struct Context
 {
-    Command                         command;
-    MLMusicServicePlaybackState     playbackState;
-    std::unique_ptr<DecoderContext> decoderContext;         // contains internals of the decoder
+private:
+    std::vector<Command>            _commandQueue;
+    mutable std::mutex              _commandMutex;
 
-    std::string                     mediaUri;               // uri of currently playing track
+public:
+    MLMusicServicePlaybackState     playbackState = MLMusicServicePlaybackState_Stopped;
+    std::unique_ptr<DecoderContext> decoderContext = nullptr;   // contains internals of the decoder
 
-    MLMusicServiceRepeatState       repeatState;
-    MLMusicServiceShuffleState      shuffleState;
+    std::string                     mediaUri = "";              // uri of currently playing track
+
+    MLMusicServiceRepeatState       repeatState = MLMusicServiceRepeatState_Off;
+    MLMusicServiceShuffleState      shuffleState = MLMusicServiceShuffleState_Off;
 
     //used to pass command arguments from BMS callbacks to main thread
-    std::string                     desiredUri;             // arg for COMMAND_OPEN
-    uint32_t                        desiredSeekPosition;    // arg for COMMAND_SEEK
+    std::string                     desiredUri = "";            // arg for COMMAND_OPEN
+    uint32_t                        desiredSeekPosition = 0;    // arg for COMMAND_SEEK
 
     Playlist                        playlist;
+
+    Command PopCommand();
+    Command PeekCommand() const;
+    void QueueCommand(Command command);
 };

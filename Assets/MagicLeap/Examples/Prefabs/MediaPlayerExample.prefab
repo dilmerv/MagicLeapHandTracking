@@ -237,7 +237,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _distance: 1.2
-  _height: 0.1
+  _heightOffset: 0.1
+  _lateralOffset: 0
   _positionSmoothTime: 0.3
   _rotationSmoothTime: 0.1
   _lookDirection: 2
@@ -259,6 +260,7 @@ MonoBehaviour:
   _pausePlayButton: {fileID: 114836747136834322}
   _playMaterial: {fileID: 2100000, guid: edacc14e83d20c14987aa2a9d2426251, type: 2}
   _pauseMaterial: {fileID: 2100000, guid: 8462c117bcb929d4f901845532a3802c, type: 2}
+  _autoLoop: 0
   _rewindButton: {fileID: 114498227532677660}
   _rewindMS: -10000
   _forwardButton: {fileID: 114880759942362460}
@@ -269,6 +271,9 @@ MonoBehaviour:
   _elapsedTime: {fileID: 102895099013596576}
   _url: https://ia800105.us.archive.org/19/items/jsc2018m000350_When_Cool_Science_Gets_Positively_COLD/jsc2018m000350_When_Cool_Science_Gets_Positively_COLD_MP4.mp4
   _licenseUrl: 
+  _stereoMode: 0
+  _videoRenderMaterial: {fileID: 2100000, guid: dcceef03bb9839949ac4ef568106f685,
+    type: 2}
   _customLicenseHeaderData: []
   _statusText: {fileID: 102014160840062266}
   _spinner: {fileID: 0}

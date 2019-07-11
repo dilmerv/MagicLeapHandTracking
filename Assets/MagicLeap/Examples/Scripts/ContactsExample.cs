@@ -123,7 +123,6 @@ namespace MagicLeap
             _root.SetActive(false);
             _helpScreen.SetActive(true);
 
-            MLInput.OnControllerButtonUp += HandleControllerButtonUp;
         }
 
         /// <summary>
@@ -329,6 +328,7 @@ namespace MagicLeap
             MLContacts.OnContactUpdated += HandleOnContactUpdated;
             MLContacts.OnContactDeleted += HandleOnContactDeleted;
             MLContacts.OnOperationFailed += HandleOnOperationFailed;
+            MLInput.OnControllerButtonUp += HandleControllerButtonUp;
 
             LoadListPage();
         }

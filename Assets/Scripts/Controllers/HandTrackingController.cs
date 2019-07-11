@@ -21,7 +21,7 @@ public class HandTrackingController : MonoBehaviourSingleton<HandTrackingControl
 
     [SerializeField]
     private SimpleClothController simpleClothController;
-
+    
     void Awake()
     {   
         if(_statusText == null)

@@ -1,5 +1,5 @@
 KIND = program
-SRCS = ExampleMusicProvider.cpp DecoderContext.cpp Utility.cpp
+SRCS = ExampleMusicProvider.cpp DecoderContext.cpp Utility.cpp MusicProviderContext.cpp
 INCS =
 
 USES = ml_sdk stdc++

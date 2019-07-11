@@ -59,6 +59,11 @@ namespace MagicLeap
 
         [SerializeField, Tooltip("PCF Visualizer when debugging")]
         PCFVisualizer _pcfVisualizer = null;
+
+        [SerializeField, Tooltip("Number of frames to perform delete all gesture before executing the deletion")]
+        int _deleteAllSequenceMinFrames = 60;
+        int _deleteAllSequenceFrameCount = 0;
+        bool _deleteAllInitiated = false;
         #endregion // Private Variables
 
         #region Unity Methods
@@ -150,15 +155,18 @@ namespace MagicLeap
             }
 
             MLInput.OnControllerButtonDown -= HandleControllerButtonDown;
+            MLInput.OnControllerTouchpadGestureStart -= HandleTouchpadGestureStart;
+            MLInput.OnControllerTouchpadGestureContinue -= HandleTouchpadGestureContinue;
+            MLInput.OnControllerTouchpadGestureEnd -= HandleTouchpadGestureEnd;
         }
         #endregion // Unity Methods
 
         #region Event Handlers
         /// <summary>
-        ///
+        /// Listens for Bumper and Home Tap.
         /// </summary>
-        /// <param name="controllerId"></param>
-        /// <param name="button"></param>
+        /// <param name="controllerId">Controller ID</param>
+        /// <param name="button">Controller Button</param>
         void HandleControllerButtonDown(byte controllerId, MLInputControllerButton button)
         {
             if (!_controller.IsControllerValid(controllerId))
@@ -180,7 +188,7 @@ namespace MagicLeap
         /// <summary>
         /// Responds to privilege requester result.
         /// </summary>
-        /// <param name="result"/>
+        /// <param name="result">MLResult of the privilege request</param>
         void HandlePrivilegesDone(MLResult result)
         {
             _privilegeRequester.OnPrivilegesDone -= HandlePrivilegesDone;
@@ -291,6 +299,87 @@ namespace MagicLeap
                     break;
             }
         }
+
+        /// <summary>
+        /// Handler when touchpad gesture begins
+        /// </summary>
+        /// <param name="controllerId">Controller ID</param>
+        /// <param name="touchpadGesture">Touchpad Gesture</param>
+        private void HandleTouchpadGestureStart(byte controllerId, MLInputControllerTouchpadGesture touchpadGesture)
+        {
+            if (!_controller.IsControllerValid(controllerId))
+            {
+                return;
+            }
+
+            if (touchpadGesture.Type == MLInputControllerTouchpadGestureType.RadialScroll)
+            {
+                _deleteAllInitiated = true;
+                _deleteAllSequenceFrameCount = 0;
+            }
+        }
+
+        /// <summary>
+        /// Handler when touchpad gesture continues
+        /// </summary>
+        /// <param name="controllerId">Controller ID</param>
+        /// <param name="touchpadGesture">Touchpad Gesture</param>
+        private void HandleTouchpadGestureContinue(byte controllerId, MLInputControllerTouchpadGesture touchpadGesture)
+        {
+            if (!_controller.IsControllerValid(controllerId))
+            {
+                return;
+            }
+
+            if (_deleteAllInitiated)
+            {
+                if (touchpadGesture.Type == MLInputControllerTouchpadGestureType.RadialScroll)
+                {
+                    ++_deleteAllSequenceFrameCount;
+                    if (_deleteAllSequenceFrameCount < _deleteAllSequenceMinFrames)
+                    {
+                        _statusText.text = string.Format("<color=yellow>Delete All sequence {0:P} complete.</color>",
+                            (float)(_deleteAllSequenceFrameCount) / _deleteAllSequenceMinFrames);
+                    }
+                    else
+                    {
+                        MLPersistentStore.DeleteAll();
+                        foreach (var pointBehavior in _pointBehaviors)
+                        {
+                            Instantiate(_destroyedContentEffect, pointBehavior.transform.position, Quaternion.identity);
+                            Destroy(pointBehavior.gameObject);
+                        }
+                        _pointBehaviors.Clear();
+
+                        _statusText.text = string.Format("<color=green>Delete All complete.</color>");
+                        _deleteAllInitiated = false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handler when touchpad gesture ends
+        /// </summary>
+        /// <param name="controllerId">Controller ID</param>
+        /// <param name="touchpadGesture">Touchpad Gesture</param>
+        private void HandleTouchpadGestureEnd(byte controllerId, MLInputControllerTouchpadGesture touchpadGesture)
+        {
+            if (!_controller.IsControllerValid(controllerId))
+            {
+                return;
+            }
+
+            if (_deleteAllInitiated)
+            {
+                if (touchpadGesture.Type == MLInputControllerTouchpadGestureType.RadialScroll &&
+                    _deleteAllSequenceFrameCount < _deleteAllSequenceMinFrames)
+                {
+                    _statusText.text = string.Format("Delete All sequence aborted!");
+                    _deleteAllInitiated = false;
+                }
+            }
+        }
         #endregion // Event Handlers
 
         #region Private Methods
@@ -300,6 +389,10 @@ namespace MagicLeap
         void PerformStartup()
         {
             MLInput.OnControllerButtonDown += HandleControllerButtonDown;
+            MLInput.OnControllerTouchpadGestureStart += HandleTouchpadGestureStart;
+            MLInput.OnControllerTouchpadGestureContinue += HandleTouchpadGestureContinue;
+            MLInput.OnControllerTouchpadGestureEnd += HandleTouchpadGestureEnd;
+
             _pcfVisualizer.gameObject.SetActive(true);
             _statusText.text = "Status: Restoring Content";
             ReadAllStoredObjects();
@@ -341,8 +434,8 @@ namespace MagicLeap
             foreach (MLContentBinding binding in allBindings)
             {
                 GameObject gameObj = Instantiate(_content, Vector3.zero, Quaternion.identity);
-                gameObj.name = binding.ObjectId;
                 MLPersistentBehavior persistentBehavior = gameObj.GetComponent<MLPersistentBehavior>();
+                persistentBehavior.UniqueId = binding.ObjectId;
                 _pointBehaviors.Add(persistentBehavior);
                 AddContentListeners(persistentBehavior);
             }

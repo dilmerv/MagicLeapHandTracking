@@ -1592,7 +1592,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _distance: 1.2
-  _height: 0.1
+  _heightOffset: 0
+  _lateralOffset: 0
   _positionSmoothTime: 0.3
   _rotationSmoothTime: 0.1
   _lookDirection: 2

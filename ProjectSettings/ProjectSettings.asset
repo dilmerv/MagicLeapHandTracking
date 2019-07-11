@@ -79,6 +79,7 @@ PlayerSettings:
   usePlayerLog: 1
   bakeCollisionMeshes: 0
   forceSingleInstance: 0
+  useFlipModelSwapchain: 1
   resizableWindow: 0
   useMacAppStoreValidation: 0
   macAppStoreCategory: public.app-category.games
@@ -642,7 +643,7 @@ PlayerSettings:
     m_ModelFolderPath: 
     m_PortalFolderPath: 
   luminCert:
-    m_CertPath: /Users/dvalecillos/Dropbox/DilmerGames/MagicLeap/Certs/initialdevelopment.cert
+    m_CertPath: /Users/dilmervalecillos/Dropbox/DilmerGames/MagicLeap/Certs/initialdevelopment.cert
     m_SignPackage: 1
   luminIsChannelApp: 0
   luminVersion:

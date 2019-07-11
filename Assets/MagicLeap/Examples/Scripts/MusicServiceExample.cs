@@ -180,6 +180,14 @@ namespace MagicLeap
             }
         }
 
+        private void OnApplicationQuit()
+        {
+            if (MLMusicService.IsStarted)
+            {
+                MLMusicService.Stop();
+            }
+        }
+
         private void OnApplicationPause(bool pause)
         {
             if (MLMusicService.IsStarted)
@@ -493,11 +501,11 @@ namespace MagicLeap
             MLMusicServiceMetadata trackMeta = new MLMusicServiceMetadata();
 
             // Retrieve the meta information for the previous track.
-            MLMusicService.GetMetadata(MLMusicServiceTrackType.Previous, ref trackMeta);
+            MLMusicService.GetMetadata(-1, ref trackMeta);
             _metadataPreviousTrack.text = string.Format("Previous: {0}", trackMeta.TrackTitle);
 
             // Retrieve the meta information for the next track.
-            MLMusicService.GetMetadata(MLMusicServiceTrackType.Next, ref trackMeta);
+            MLMusicService.GetMetadata(1, ref trackMeta);
             _metadataNextTrack.text = string.Format("Next: {0}", trackMeta.TrackTitle);
         }
 

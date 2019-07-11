@@ -59,6 +59,8 @@ namespace MagicLeap
         private PrivilegeRequester _privilegeRequester = null;
 
         private bool _hasStarted = false;
+
+        private bool _appPaused = false;
         #endregion
 
         #region Unity Methods
@@ -127,14 +129,30 @@ namespace MagicLeap
         {
             if (pause)
             {
-                if (_isCameraConnected)
+                _appPaused = true;
+
+                if (_isCameraConnected && MLCamera.IsStarted)
                 {
-                    DisableMLCamera();
+                    MLResult result = MLCamera.ApplicationPause(_appPaused);
+                    if(!result.IsOk)
+                    {
+                        Debug.LogErrorFormat("Error: VideoCaptureExample failed to pause MLCamera, disabling script. Reason: {0}", result);
+                        enabled = false;
+                        return;
+                    }
+
+                    if (_isCapturing)
+                    {
+                        OnVideoCaptureEnded.Invoke(_captureFilePath);
+                        _captureFilePath = null;
+                    }
+
+                    _isCapturing = false;
+                    _captureStartTime = 0;
+                    _isCameraConnected = false;
                 }
 
                 MLInput.OnControllerButtonDown -= OnButtonDown;
-
-                _hasStarted = false;
             }
         }
 
@@ -313,7 +331,28 @@ namespace MagicLeap
             }
 
             Debug.Log("Succeeded in requesting all privileges");
-            EnableCapture();
+
+            // Called here because it needs privileges to be granted first on resume by PrivilegeRequester.
+            if (_appPaused)
+            {
+                _appPaused = false;
+
+                result = MLCamera.ApplicationPause(_appPaused);
+                if (!result.IsOk)
+                {
+                    Debug.LogErrorFormat("Error: VideoCaptureExample failed to resume MLCamera, disabling script. Reason: {0}", result);
+                    enabled = false;
+                    return;
+                }
+
+                _isCameraConnected = true;
+
+                MLInput.OnControllerButtonDown += OnButtonDown;
+            }
+            else
+            {
+                EnableCapture();
+            }
         }
 
         /// <summary>

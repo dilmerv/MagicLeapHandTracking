@@ -289,6 +289,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1468009404}
     m_Modifications:
+    - target: {fileID: 4127378714913130, guid: 3aae518756c7a3c46bf2b24558dc5b77, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.43
+      objectReference: {fileID: 0}
     - target: {fileID: 4660096415485334, guid: 3aae518756c7a3c46bf2b24558dc5b77, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.354
@@ -321,26 +325,22 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 4127378714913130, guid: 3aae518756c7a3c46bf2b24558dc5b77, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.43
-      objectReference: {fileID: 0}
+    - target: {fileID: 114179439577410040, guid: 3aae518756c7a3c46bf2b24558dc5b77,
+        type: 3}
+      propertyPath: _controllerConnectionHandler
+      value: 
+      objectReference: {fileID: 793659312}
+    - target: {fileID: 114366043123998692, guid: 3aae518756c7a3c46bf2b24558dc5b77,
+        type: 3}
+      propertyPath: _controllerConnectionHandler
+      value: 
+      objectReference: {fileID: 793659312}
     - target: {fileID: 212736544333711588, guid: 3aae518756c7a3c46bf2b24558dc5b77,
         type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: a08aff0c7b507c04da4da4d952ea2f1f,
         type: 3}
-    - target: {fileID: 114366043123998692, guid: 3aae518756c7a3c46bf2b24558dc5b77,
-        type: 3}
-      propertyPath: _controllerConnectionHandler
-      value: 
-      objectReference: {fileID: 793659312}
-    - target: {fileID: 114179439577410040, guid: 3aae518756c7a3c46bf2b24558dc5b77,
-        type: 3}
-      propertyPath: _controllerConnectionHandler
-      value: 
-      objectReference: {fileID: 793659312}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3aae518756c7a3c46bf2b24558dc5b77, type: 3}
 --- !u!4 &144069243 stripped

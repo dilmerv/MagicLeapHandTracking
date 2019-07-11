@@ -271,7 +271,7 @@ namespace MagicLeap
         /// <summary>
         /// Handles the event for button down.
         /// </summary>
-        /// <param name="controller_id">The id of the controller.</param>
+        /// <param name="controllerId">The id of the controller.</param>
         /// <param name="button">The button that is being pressed.</param>
         private void HandleOnButtonDown(byte controllerId, MLInputControllerButton button)
         {
@@ -286,7 +286,7 @@ namespace MagicLeap
         /// <summary>
         /// Handles the event for button up.
         /// </summary>
-        /// <param name="controller_id">The id of the controller.</param>
+        /// <param name="controllerId">The id of the controller.</param>
         /// <param name="button">The button that is being released.</param>
         private void HandleOnButtonUp(byte controllerId, MLInputControllerButton button)
         {

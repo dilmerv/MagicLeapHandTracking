@@ -37,6 +37,9 @@ namespace MagicLeap
         [SerializeField, Tooltip("Pause Material")]
         private Material _pauseMaterial = null;
 
+        [SerializeField, Tooltip("Auto Loop")]
+        private bool _autoLoop = false;
+
         [SerializeField, Tooltip("Rewind Button")]
         private MediaPlayerButton _rewindButton = null;
 
@@ -70,6 +73,14 @@ namespace MagicLeap
         // DRM-free videos should leave this blank
         [SerializeField, Tooltip("Optional URL of DRM video license server")]
         private string _licenseUrl = String.Empty;
+
+        // Used for videos containing over/under or side-by-side stereo frames.
+        [SerializeField, Tooltip("Video Stereo Mode")]
+        private MLMediaPlayer.VideoStereoMode _stereoMode = MLMediaPlayer.VideoStereoMode.Mono;
+
+        // Material used on video render surface, defaults to "Unlit/Texture" if left null.
+        [SerializeField, Tooltip("Video Render Material")]
+        private Material _videoRenderMaterial = null;
 
         // Private class used to facilitate "Dictionary" inspector, since Unity can't inspect Dictionaries
         [System.Serializable]
@@ -186,8 +197,11 @@ namespace MagicLeap
 
         private void Start()
         {
+            _mediaPlayer.VideoRenderMaterial = _videoRenderMaterial;
+            _mediaPlayer.StereoMode = _stereoMode;
             _mediaPlayer.VideoSource = _url;
             _mediaPlayer.LicenseServer = _licenseUrl;
+            _mediaPlayer.IsLooping = _autoLoop;
             if (_customLicenseHeaderData != null && _customLicenseHeaderData.Length > 0)
             {
                 Dictionary<string, string> dict = new Dictionary<string, string>();
@@ -234,6 +248,14 @@ namespace MagicLeap
             _forwardButton.OnControllerTriggerDown -= FastForward;
             _timelineSlider.OnValueChanged -= Seek;
             _volumeSlider.OnValueChanged -= SetVolume;
+        }
+
+        private void OnApplicationQuit()
+        {
+            if (_mediaPlayer.IsPlaying)
+            {
+                _mediaPlayer.Stop();
+            }
         }
 
         private void Update()
@@ -290,7 +312,17 @@ namespace MagicLeap
         /// </summary>
         private void HandleEnded()
         {
-            _pausePlayButton.State = false;
+            // If we are not looping then treat similar to pause.
+            if (!_mediaPlayer.IsLooping)
+            {
+                _pausePlayButton.State = false;
+                _pausePlayButton.Material = _playMaterial;
+            }
+            // Else force a time slider update.
+            else
+            {
+                _UIUpdateTimer = float.MaxValue;
+            }
         }
 
         /// <summary>

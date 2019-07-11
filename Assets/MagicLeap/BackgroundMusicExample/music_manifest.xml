@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:ml="magicleap" ml:package="com.magicleap.musicservice" ml:version_code="1" ml:version_name="">
-    <application ml:min_api_level="4" ml:visible_name="Unity Music" ml:sdk_version="1.0">
+    <application ml:min_api_level="5" ml:visible_name="Unity Music" ml:sdk_version="1.0">
         <uses-privilege ml:name="LowLatencyLightwear" />
         <uses-privilege ml:name="ConnectBackgroundMusicService" />
         <uses-privilege ml:name="MusicService" />

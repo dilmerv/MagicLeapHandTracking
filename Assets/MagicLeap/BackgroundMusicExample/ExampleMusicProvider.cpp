@@ -72,7 +72,7 @@ MLResult BMSProviderSetUrl(const char* uri, void* context)
 
     contextPtr->desiredUri = contextPtr->playlist.uris[contextPtr->playlist.position];
 
-    contextPtr->command = Command::OPEN;
+    contextPtr->QueueCommand(Command::OPEN);
 
     return result;
 }
@@ -127,7 +127,7 @@ MLResult BMSProviderSetPlaylist(const char** list, size_t count, void* context)
         contextPtr->playlist.uris[contextPtr->playlist.position].c_str());
 
     contextPtr->desiredUri = contextPtr->playlist.uris[contextPtr->playlist.position];
-    contextPtr->command = Command::OPEN;
+    contextPtr->QueueCommand(Command::OPEN);
     return MLResult_Ok;
 }
 
@@ -139,7 +139,7 @@ MLResult SetContextCommand(void* context, Command command, const char* function_
         return MLResult_InvalidParam;
     }
     Context* contextPtr = (Context*)context;
-    contextPtr->command = command;
+    contextPtr->QueueCommand(command);
     return MLResult_Ok;
 }
 
@@ -183,7 +183,7 @@ MLResult BMSProviderSeek(uint32_t seekPosition, void* context)
     }
 
     contextPtr->desiredSeekPosition = seekPosition;
-    contextPtr->command = Command::SEEK;
+    contextPtr->QueueCommand(Command::SEEK);
 
     return MLResult_Ok;
 }
@@ -274,7 +274,7 @@ MLResult BMSProviderGetTrackLength(uint32_t* lengthMS, void* context)
     }
     Context* contextPtr = (Context*)context;
 
-    if (contextPtr->command == Command::OPEN)
+    if (contextPtr->PeekCommand() == Command::OPEN)
     {
         // we can't get the track length while a new track is being opened
         *lengthMS = 0;
@@ -315,7 +315,7 @@ MLResult BMSProviderGetCurrentPosition(uint32_t* position, void* context)
     }
     Context* contextPtr = (Context*)context;
 
-    if (contextPtr->command == Command::OPEN)
+    if (contextPtr->PeekCommand() == Command::OPEN)
     {
         // we can't get current position while a new track is being opened
         *position = 0;
@@ -341,7 +341,7 @@ MLResult BMSProviderGetCurrentPosition(uint32_t* position, void* context)
     return MLResult_Ok;
 }
 
-MLResult BMSProviderGetMetadata(MLMusicServiceTrackType track, MLMusicServiceMetadata* pMetadata, void* context)
+MLResult BMSProviderGetMetadata(int32_t indexOffset, MLMusicServiceMetadata* pMetadata, void* context)
 {
     if (nullptr == context)
     {
@@ -368,28 +368,6 @@ MLResult BMSProviderGetMetadata(MLMusicServiceTrackType track, MLMusicServiceMet
     {
         ML_LOG(Error, "BMSProviderGetMetadata failed to get duration. Reason: %s.", MLMediaResultGetString(result));
         return result;
-    }
-
-    int indexOffset = 0;
-    if (track == MLMusicServiceTrackType_Current)
-    {
-        // Current Track
-        indexOffset = 0;
-    }
-    else if (track == MLMusicServiceTrackType_Previous)
-    {
-        // Previous Track
-        indexOffset = -1;
-    }
-    else if (track == MLMusicServiceTrackType_Next)
-    {
-        // Next Track
-        indexOffset = 1;
-    }
-    else
-    {
-        ML_LOG(Error, "BMSProviderGetMetadata failed. Reason: invalid track type.");
-        return MLResult_InvalidParam;
     }
 
     // Check that the position + the offset are within the playlist bounds.
@@ -449,7 +427,7 @@ MLResult PlaylistPlayIndex(Context& context, int32_t position, bool start_playba
     if (start_playback)
     {
         context.desiredUri = context.playlist.uris[context.playlist.position];
-        context.command = Command::OPEN;
+        context.QueueCommand(Command::OPEN);
     }
     else
     {
@@ -583,7 +561,8 @@ void CommandThread(Context& context)
     bool running = true;
     while (running)
     {
-        switch (context.command)
+        Command command = context.PopCommand();
+        switch (command)
         {
 
         case Command::OPEN:
@@ -608,7 +587,6 @@ void CommandThread(Context& context)
                 context.decoderContext.reset();
             }
 
-            context.command = Command::NONE;
             break;
 
         case Command::START:
@@ -618,7 +596,7 @@ void CommandThread(Context& context)
             {
                 // delegate to resume
                 ML_LOG(Info, "%s() line: %d Command::START STATE_PAUSED delegate to Command::RESUME", __FUNCTION__, __LINE__);
-                context.command = Command::RESUME;
+                context.QueueCommand(Command::RESUME);
                 continue;
             }
             else if (context.playbackState == MLMusicServicePlaybackState_Stopped)
@@ -651,7 +629,6 @@ void CommandThread(Context& context)
                 }
             }
 
-            context.command = Command::NONE;
             break;
 
         case Command::PAUSE:
@@ -666,7 +643,6 @@ void CommandThread(Context& context)
             context.playbackState = MLMusicServicePlaybackState_Paused;
             MLMusicServiceProviderNotifyPlaybackStateChange(context.playbackState);
 
-            context.command = Command::NONE;
             break;
 
         case Command::RESUME:
@@ -679,7 +655,6 @@ void CommandThread(Context& context)
                 MLMusicServiceProviderNotifyPlaybackStateChange(context.playbackState);
             }
 
-            context.command = Command::NONE;
             break;
 
         case Command::SEEK:
@@ -691,7 +666,6 @@ void CommandThread(Context& context)
                 result = context.decoderContext->Seek((int64_t)context.desiredSeekPosition * 1000);
             }
 
-            context.command = Command::NONE;
             break;
 
         case Command::STOP:
@@ -703,7 +677,6 @@ void CommandThread(Context& context)
             context.playbackState = MLMusicServicePlaybackState_Stopped;
             MLMusicServiceProviderNotifyPlaybackStateChange(context.playbackState);
 
-            context.command = Command::NONE;
             break;
 
         case Command::NEXT:
@@ -712,7 +685,6 @@ void CommandThread(Context& context)
             MLMusicServiceProviderFlushAudioOutput();
             MLMusicServiceProviderNotifyStatus(MLMusicServiceStatus_NextTrack);
 
-            context.command = Command::NONE;
             HandlePlaylist(context, Command::NEXT);
             break;
 
@@ -722,7 +694,6 @@ void CommandThread(Context& context)
             MLMusicServiceProviderFlushAudioOutput();
             MLMusicServiceProviderNotifyStatus(MLMusicServiceStatus_PrevTrack);
 
-            context.command = Command::NONE;
             HandlePlaylist(context, Command::PREVIOUS);
             break;
 
@@ -737,7 +708,6 @@ void CommandThread(Context& context)
                 context.playbackState = MLMusicServicePlaybackState_Stopped;
                 MLMusicServiceProviderNotifyPlaybackStateChange(context.playbackState);
             }
-            context.command = Command::NONE;
             running = false;
             break;
 
@@ -790,47 +760,34 @@ int main(int argc __unused, char* argv[] __unused)
 {
     ML_LOG(Info, "%s() line: %d enter", __FUNCTION__, __LINE__);
 
-    Playlist playlist;
+    Context context;
 
-    Context context =
-    {
-        Command::NONE,                       // command
-        MLMusicServicePlaybackState_Stopped, // playbackState
-        nullptr,                             // decoder context
-        "",                                  // mediaUri
-        MLMusicServiceRepeatState_Off,       // repeatState
-        MLMusicServiceShuffleState_Off,      // shuffleState
-        "",                                  // desiredUri
-        0,                                   // desiredSeekPosition
-        playlist,                            // playlist
-    };
+    MLMusicServiceProviderImplementationEx musicServiceImpl;
+    MLMusicServiceProviderImplementationExInit(&musicServiceImpl);
 
-    MLMusicServiceProviderImplementation musicServiceImpl =
-    {
-        &BMSProviderSetAuthString,
-        &BMSProviderSetUrl,
-        &BMSProviderSetPlaylist,
-        &BMSProviderStart,
-        &BMSProviderStop,
-        &BMSProviderPause,
-        &BMSProviderResume,
-        &BMSProviderSeek,
-        &BMSProviderNext,
-        &BMSProviderPrevious,
-        &BMSProviderSetShuffle,
-        &BMSProviderSetRepeat,
-        &BMSProviderSetVolume,
-        &BMSProviderGetTrackLength,
-        &BMSProviderGetCurrentPosition,
-        &BMSProviderGetMetadata,
-        &BMSProviderOnEndService,
-        &context
-    };
+    musicServiceImpl.set_auth_string = &BMSProviderSetAuthString;
+    musicServiceImpl.set_url = &BMSProviderSetUrl;
+    musicServiceImpl.set_play_list = &BMSProviderSetPlaylist;
+    musicServiceImpl.start = &BMSProviderStart;
+    musicServiceImpl.stop = &BMSProviderStop;
+    musicServiceImpl.pause = &BMSProviderPause;
+    musicServiceImpl.resume = &BMSProviderResume;
+    musicServiceImpl.seek = &BMSProviderSeek;
+    musicServiceImpl.next = &BMSProviderNext;
+    musicServiceImpl.previous = &BMSProviderPrevious;
+    musicServiceImpl.set_shuffle = &BMSProviderSetShuffle;
+    musicServiceImpl.set_repeat = &BMSProviderSetRepeat;
+    musicServiceImpl.set_volume = &BMSProviderSetVolume;
+    musicServiceImpl.get_track_length = &BMSProviderGetTrackLength;
+    musicServiceImpl.get_current_position = &BMSProviderGetCurrentPosition;
+    musicServiceImpl.get_metadata_for_index = &BMSProviderGetMetadata;
+    musicServiceImpl.on_end_service = &BMSProviderOnEndService;
+    musicServiceImpl.callback_context = &context;
 
     MLResult result = MLResult_UnspecifiedFailure;
     ML_LOG(Info, "%s() line: %d MLMusicServiceProviderCreate", __FUNCTION__, __LINE__);
 
-    result = MLMusicServiceProviderCreate(&musicServiceImpl);
+    result = MLMusicServiceProviderCreateEx(&musicServiceImpl);
     if (MLResult_Ok != result)
     {
         ML_LOG(Error, "main call to MLMusicServiceProviderCreate failed. Reason: %s.", MLMediaResultGetString(result));
