@@ -6,7 +6,8 @@ using UnityEngine.XR.MagicLeap;
 using System.Linq;
 
 [RequireComponent(typeof(HandTracking))]
-public class HandTrackingWithKeyPointsController : MonoBehaviourSingleton<HandTrackingWithKeyPointsController>
+[RequireComponent(typeof(LineRenderer))]
+public class MeasuringKeyPointsController : MonoBehaviourSingleton<MeasuringKeyPointsController>
 {
 
     [SerializeField, Tooltip("Text to display gesture status to.")]
@@ -15,41 +16,60 @@ public class HandTrackingWithKeyPointsController : MonoBehaviourSingleton<HandTr
     [SerializeField]
     private GameObject keyPointPrefab;
 
+    [SerializeField]
+    private float measurementFactor = 39.37f;
+
+    [SerializeField]
+    private Text distanceText;
+
     private Dictionary<string, GameObject> cacheKeyPoints;
+
+    private GameObject leftHandFinger, rightHandFinger;
+
+    private LineRenderer measureLine;
     
     void Awake()
     {   
-        if(_statusText == null)
+        if(_statusText == null || distanceText == null)
         {
-            Debug.LogError("Status needs to be set");
+            Debug.LogError("UI must all be bound through the inspector");
             enabled = false;
             return;
         }
 
         cacheKeyPoints = new Dictionary<string, GameObject>();
+        measureLine = GetComponent<LineRenderer>();
     }
 
     void Update()
     {
         if (MLHands.IsStarted)
         {
-            _statusText.text = $"Hand Key Points: {string.Join(",", cacheKeyPoints.Keys.Select(s => s).ToArray())}";
-
-            AddAndUpdateHandKeyPoint(new FingerKeyPoint[] {
-                // left hand key points
-                new FingerKeyPoint { Name = $"HandLeft.{nameof(MLHands.Left.Pinky)}", KeyPoint = MLHands.Left.Pinky.KeyPoints[0]},
-                new FingerKeyPoint { Name = $"HandLeft.{nameof(MLHands.Left.Ring)}", KeyPoint = MLHands.Left.Ring.KeyPoints[0]},
-                new FingerKeyPoint { Name = $"HandLeft.{nameof(MLHands.Left.Middle)}", KeyPoint = MLHands.Left.Middle.KeyPoints[0]},
+            _statusText.text = $"Hand tracking has started...";
+            
+            AddAndUpdateHandKeyPoint(new FingerKeyPoint[] 
+            { 
                 new FingerKeyPoint { Name = $"HandLeft.{nameof(MLHands.Left.Index)}", KeyPoint = MLHands.Left.Index.KeyPoints[0]},
-                new FingerKeyPoint { Name = $"HandLeft.{nameof(MLHands.Left.Thumb)}", KeyPoint = MLHands.Left.Thumb.KeyPoints[0]},
-                
-                // right hand key points
-                new FingerKeyPoint { Name = $"HandRight.{nameof(MLHands.Right.Pinky)}", KeyPoint = MLHands.Right.Pinky.KeyPoints[0]},
-                new FingerKeyPoint { Name = $"HandRight.{nameof(MLHands.Right.Ring)}", KeyPoint = MLHands.Right.Ring.KeyPoints[0]},
-                new FingerKeyPoint { Name = $"HandRight.{nameof(MLHands.Right.Middle)}", KeyPoint = MLHands.Right.Middle.KeyPoints[0]},
                 new FingerKeyPoint { Name = $"HandRight.{nameof(MLHands.Right.Index)}", KeyPoint = MLHands.Right.Index.KeyPoints[0]},
-                new FingerKeyPoint { Name = $"HandRight.{nameof(MLHands.Right.Thumb)}", KeyPoint = MLHands.Right.Thumb.KeyPoints[0]}
             });
+
+            if(cacheKeyPoints.Count > 0)
+            {
+                leftHandFinger = cacheKeyPoints.FirstOrDefault().Value;
+                rightHandFinger = cacheKeyPoints.LastOrDefault().Value;
+
+                // update source and target line
+                measureLine.SetPosition(0, leftHandFinger.transform.position);
+                measureLine.SetPosition(1, rightHandFinger.transform.position);
+
+                distanceText.text = $"DISTANCE: {(Vector3.Distance(leftHandFinger.transform.position, rightHandFinger.transform.position) * measurementFactor).ToString("F2")} in";
+            }
+
+            _statusText.text = $"Hand Key Points: {string.Join(",", cacheKeyPoints.Keys.Select(s => s).ToArray())}";
+        }
+        else 
+        {
+            _statusText.text = $"Hand tracking has not started...";
         }
     }
 

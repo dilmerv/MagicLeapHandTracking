@@ -15,3 +15,6 @@ A Magic Leap Unity project for demonstrating what can be done with ML hand track
 
 ![image](https://github.com/dilmerv/MagicLeapHandTracking/blob/master/docs/images/handkeypoints.gif)
 
+4. **MeasuringDemo** - demonstrates how to simulate a measuring tape by using hand key points.
+
+![image](https://github.com/dilmerv/MagicLeapHandTracking/blob/master/docs/images/measuringTape.gif)
